@@ -1,0 +1,9 @@
+venv
+etc/config/secrets.ini
+static/
+*.DS_Store
+*.pyc
+__pycache__
+logs
+._*
+.*
