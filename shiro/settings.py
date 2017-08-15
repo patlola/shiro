@@ -142,6 +142,8 @@ class Base(Configuration):
 
     STATIC_URL = '/static/'
 
+    STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
 class Dev(Base):
     """Settings for dev environment."""
     DEBUG = True
