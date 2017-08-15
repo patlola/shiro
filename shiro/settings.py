@@ -11,110 +11,147 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from configurations import Configuration
+import ConfigParser
+from utils import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+class Base(Configuration):
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-4mi6c0d-&p)$o1k%f_0gkvbd*16*s@z4&tpo8jf*gd!f%b2v@'
+    ROOT_URLCONF = 'shiro.urls'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+    ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = []
+    # Quick-start development settings - unsuitable for production
+    # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = config.get('defaut', 'secret_key')
 
 
-# Application definition
+    # Application definition
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-]
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+    ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ]
 
-ROOT_URLCONF = 'shiro.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
         },
-    },
-]
+    ]
 
-WSGI_APPLICATION = 'shiro.wsgi.application'
+    WSGI_APPLICATION = 'shiro.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+    # Database
+    # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    """
+        using utf8 charset because it will occupy 3 bytes only where as utf8mb4 will occupy 4 bytes.
+        max length of character is varchar(255) for utf8 for having index, where as varchar(191) for utf8mb4 with index.
+        collation is utf8_unicode_ci <case insensitive collation because to avoid duplicates on case.
+        transaction isolation level is read committed not repeatable read,
+        because get_or_create in a transaction will be effected because repeatable read will lock the transaction.
+        storage is InnoDB.
+    """
+
+    DATABASES = {
+        'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': config.get('databases', 'DATABASE_NAME'),
+                'USER': config.get('databases', 'DATABASE_USER'),
+                'PASSWORD': config.get('databases', 'DATABASE_PASSWORD'),
+                'HOST': config.get('databases', 'DATABASE_HOST'),
+                'PORT': config.get('databases', 'DATABASE_PORT'),
+                'CONN_MAX_AGE': 60,
+                'OPTIONS': {
+                    'charset': 'utf8',
+                    'init_command': 'SET '
+                    'character_set_connection=utf8,'
+                    'collation_connection=utf8_unicode_ci'
+                }
+            }
     }
-}
 
 
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
+    # Password validation
+    # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        },
+    ]
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
+    # Internationalization
+    # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-STATIC_URL = '/static/'
+    LANGUAGE_CODE = 'en-us'
+
+    TIME_ZONE = 'UTC'
+
+    USE_I18N = True
+
+    USE_L10N = True
+
+    USE_TZ = True
+
+
+    # Static files (CSS, JavaScript, Images)
+    # https://docs.djangoproject.com/en/1.11/howto/static-files/
+
+    STATIC_URL = '/static/'
+
+class Dev(Base):
+    """Settings for dev environment."""
+    DEBUG = True
+
+    TEMPLATE_DEBUG = True
+
+class Prod(Base):
+    """Setting for prod environment."""
+
+    DEBUG = False
+
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True      
