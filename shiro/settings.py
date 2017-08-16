@@ -34,7 +34,10 @@ class Base(Configuration):
 
     # Application definition
 
-    INSTALLED_APPS = [
+    BASE_INSTALLED_APPS = [
+        'jet.dashboard',
+        'jet',
+        'reversion',
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -43,16 +46,9 @@ class Base(Configuration):
         'django.contrib.staticfiles',
     ]
 
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    DEV_INSTALLED_APPS = [
+        'debug_toolbar',
     ]
-
 
     TEMPLATES = [
         {
@@ -71,6 +67,36 @@ class Base(Configuration):
     ]
 
     WSGI_APPLICATION = 'shiro.wsgi.application'
+
+    BASE_MIDDLEWARE_CLASSES = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ]
+
+    DEV_MIDDLEWARE_CLASSES = [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
+
+    @property
+    def MIDDLEWARE(self):
+        """Dynamically creating MIDDLEWARE_CLASSES according to environment."""
+        if self.DEBUG:
+            return self.BASE_MIDDLEWARE_CLASSES + self.DEV_MIDDLEWARE_CLASSES
+
+        return self.BASE_MIDDLEWARE_CLASSES
+
+    @property
+    def INSTALLED_APPS(self):
+        """Dynamically creating INSTALLED_APPS according to environment."""
+        if self.DEBUG:
+            return self.BASE_INSTALLED_APPS + self.DEV_INSTALLED_APPS
+
+        return self.BASE_INSTALLED_APPS
 
 
     # Database
@@ -128,7 +154,7 @@ class Base(Configuration):
 
     LANGUAGE_CODE = 'en-us'
 
-    TIME_ZONE = 'UTC'
+    TIME_ZONE = 'Asia/Kolkata'
 
     USE_I18N = True
 
@@ -148,7 +174,8 @@ class Dev(Base):
     """Settings for dev environment."""
     DEBUG = True
 
-    TEMPLATE_DEBUG = True
+    # TEMPLATE_DEBUG = True
+    INTERNAL_IPS = ['10.0.2.15', '127.0.0.1', '192.168.10.10']
 
 class Prod(Base):
     """Setting for prod environment."""
